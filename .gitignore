@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Local settings / secrets
+.env
+.env.*
+!.env.example
+
+# Local data (client files must not go to Git)
+data/
+samples/*
+!samples/.gitkeep
+*.xlsx
+*.xls
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log

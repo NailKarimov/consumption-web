@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Job: {{ job_id }} - Consumption Web{% endblock %}
+
+{% block content %}
+
+<a href="{{ url_for('index') }}" class="back-link">&larr; Back to History</a>
+
+<h1 class="page-title">Job: {{ job_id }}</h1>
+
+<div class="layout-2col">
+    <div class="col-main">
+        <div class="card">
+            <div class="card-header">Log</div>
+            <pre class="log-box">{{ log }}</pre>
+        </div>
+    </div>
+
+    <div class="col-side">
+        <div class="card">
+            <div class="card-header">Output Files</div>
+
+            {% if files %}
+                <ul class="file-list">
+                    {% for name in files %}
+                        <li class="file-row">
+                            <span class="file-name">{{ name }}</span>
+                            <a
+                                class="btn btn-sm btn-primary"
+                                href="{{ url_for('download', job_id=job_id, filename=name) }}"
+                            >
+                                Download
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="muted">No output files.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

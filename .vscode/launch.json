@@ -1,0 +1,25 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flask: run web app locally",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "flask",
+      "envFile": "${workspaceFolder}/.env",
+      "env": { "FLASK_APP": "main.py", "FLASK_DEBUG": "1" },
+      "args": ["run", "--port", "8080", "--no-debugger", "--no-reload"],
+      "jinja": true,
+      "justMyCode": true
+    },
+    {
+      "name": "Calc only: process samples/input.xlsx (no web, no GCS)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ProgramCalcMain.py",
+      "args": ["samples/input.xlsx", "samples/output.xlsx"],
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

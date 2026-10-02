@@ -1,0 +1,43 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Setup: create venv + install requirements",
+      "type": "shell",
+      "windows": {
+        "command": "py -3.11 -m venv .venv; .\\.venv\\Scripts\\python -m pip install --upgrade pip; .\\.venv\\Scripts\\pip install -r requirements.txt"
+      },
+      "linux": {
+        "command": "python3.11 -m venv .venv && ./.venv/bin/pip install --upgrade pip && ./.venv/bin/pip install -r requirements.txt"
+      },
+      "osx": {
+        "command": "python3.11 -m venv .venv && ./.venv/bin/pip install --upgrade pip && ./.venv/bin/pip install -r requirements.txt"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GCP: login (local credentials for GCS)",
+      "type": "shell",
+      "command": "gcloud auth login; gcloud auth application-default login; gcloud config set project consumption-web",
+      "problemMatcher": []
+    },
+    {
+      "label": "Cloud Run: deploy to PRODUCTION",
+      "type": "shell",
+      "command": "gcloud run deploy consumption-web --source . --project consumption-web --region europe-north1 --allow-unauthenticated --memory 2Gi --cpu 1 --timeout 600 --concurrency 1",
+      "problemMatcher": []
+    },
+    {
+      "label": "Cloud Run: show current env vars",
+      "type": "shell",
+      "command": "gcloud run services describe consumption-web --project consumption-web --region europe-north1 --format=\"yaml(spec.template.spec.containers[0].env)\"",
+      "problemMatcher": []
+    },
+    {
+      "label": "Cloud Run: list revisions",
+      "type": "shell",
+      "command": "gcloud run revisions list --service consumption-web --project consumption-web --region europe-north1",
+      "problemMatcher": []
+    }
+  ]
+}

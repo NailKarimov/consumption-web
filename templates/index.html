@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Consumption Web{% endblock %}
+
+{% block extra_head %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var fileInput = document.querySelector('.file-input input[type="file"]');
+    var fileNameEl = document.querySelector('.file-input-subtitle');
+    if (fileInput && fileNameEl) {
+        var defaultText = fileNameEl.getAttribute('data-default') || fileNameEl.textContent;
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                fileNameEl.textContent = this.files[0].name;
+            } else {
+                fileNameEl.textContent = defaultText;
+            }
+        });
+    }
+
+    // Show loading overlay on upload form submit
+    var uploadForm = document.getElementById('upload-form');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function () {
+            document.body.classList.add('loading');
+        });
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Consumption Web</h1>
+
+<div class="card">
+    <div class="card-header">
+        <span>Upload and process file</span>
+        <span class="history-meta">1. Select Excel - 2. Click "Upload"</span>
+    </div>
+
+    <form id="upload-form" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+        <div class="upload-row">
+            <label class="file-input">
+                <input type="file" name="file" accept=".xlsx,.xls">
+                <div class="file-input-main">
+                    <div class="file-input-title">Select Excel file</div>
+                    <div class="file-input-subtitle" data-default="No file selected">
+                        No file selected
+                    </div>
+                </div>
+            </label>
+
+            <button type="submit" class="btn btn-primary">
+                Upload and process
+            </button>
+        </div>
+
+        <p class="muted">
+            Supported formats: .xlsx, .xls. The processed file will appear in the history below.
+        </p>
+    </form>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <span>History</span>
+        <span class="history-meta">
+            {% if jobs and jobs|length > 0 %}
+                {{ jobs|length }} runs total
+            {% else %}
+                No runs yet
+            {% endif %}
+        </span>
+    </div>
+
+    {% if jobs and jobs|length > 0 %}
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Run</th>
+                    <th>Source file</th>
+                    <th>Month</th>
+                    <th>Generated (EUR)</th>
+                    <th>Status</th>
+                    <th>Duration</th>
+                    <th>Uploaded at</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for job in jobs %}
+                    <tr>
+                        <td class="cell-run">
+                            <a href="{{ url_for('job', job_id=job.id) }}">{{ job.id }}</a>
+                        </td>
+                        <td>
+  {% if job.source_key %}
+    <a href="{{ url_for('download_source', job_id=job.id) }}">{{ job.source }}</a>
+  {% else %}
+    {{ job.source or "-" }}
+  {% endif %}
+</td>
+                        <td class="cell-month">{{ job.month }}</td>
+                        <td class="cell-generated">{{ job.generated }}</td>
+                        <td>
+                            {% if job.status == "Success" %}
+                                <span class="badge badge-success">Success</span>
+                            {% else %}
+                                <span class="badge badge-error">Error</span>
+                            {% endif %}
+                        </td>
+                        <td class="cell-duration">{{ job.duration }}</td>
+                        <td class="cell-uploaded">{{ job.created }}</td>
+                        <td>
+                            <div class="cell-actions">
+                                <a class="btn btn-secondary btn-sm"
+                                   href="{{ url_for('job', job_id=job.id) }}">View</a>
+
+                                {% if job.output_file %}
+                                    <a class="btn btn-secondary btn-sm"
+                                       href="{{ url_for('download', job_id=job.id, filename=job.output_file) }}">
+                                        Download
+                                    </a>
+                                {% endif %}
+
+                                <form action="{{ url_for('delete', job_id=job.id) }}"
+                                      method="post"
+                                      onsubmit="return confirm('Delete this run and all its files?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="muted">
+            No processed files yet. Upload your first Excel file above.
+        </p>
+    {% endif %}
+</div>
+{% endblock %}
